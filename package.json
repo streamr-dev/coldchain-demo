@@ -1,0 +1,15 @@
+{
+  "name": "coldchain-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "truffle": "5.0.0-beta.1",
+    "openzeppelin-solidity": "^1.12.0"
+  }
+}
