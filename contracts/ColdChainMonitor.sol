@@ -21,7 +21,6 @@ contract ColdChainMonitor {
     event ShipmentArrived();
 
     ERC20 public token;
-    uint public stakeTokenWei = 0.1 ether;
     address public canvas;
     mapping (address => uint) credit;
 
@@ -55,18 +54,16 @@ contract ColdChainMonitor {
 
     /** Check that customer has given the allowance to this contract to process the payment */
     function isReady() public view returns (bool) {
-        return token.allowance(customer, this) >= payment && token.allowance(msg.sender, this) >= stakeTokenWei;
+        return token.allowance(customer, this) >= payment;
     }
 
     /** Remember to give allowance for stake first! */
     function acceptOrder() public {
         serviceProvider = msg.sender;
         require(token.transferFrom(customer, this, payment), "Payment failed. Has customer given allowance?");
-        require(token.transferFrom(serviceProvider, this, stakeTokenWei), "Staking failed. Have you given allowance?");
         emit OrderAccepted(tLimit);
     }
 
-    // REPLACE WITH BUTTON?
     function shipmentArrived() public {
         require(msg.sender == customer, "Only customer is allowed to call this!");
         emit ShipmentArrived();

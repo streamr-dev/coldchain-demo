@@ -14,9 +14,8 @@ contract("ColdChainMonitor", accounts => {
     const stake = new BN(web3.utils.toWei("0.1", "ether"))
 
     before(async () => {
-        token = await MintableToken.new({from: admin})        
+        token = await MintableToken.new({from: admin})
         await token.mint(customer, startCash, {from: admin})
-        await token.mint(serviceProvider, startCash, {from: admin})
     })
 
     describe("Shipping process", () => {
@@ -40,7 +39,6 @@ contract("ColdChainMonitor", accounts => {
 
             // all parties give necessary allowance to contract
             token.approve(monitor.address, startCash, {from: customer})
-            token.approve(monitor.address, startCash, {from: serviceProvider})
 
             // shipping company accepts
             await monitor.acceptOrder({from: serviceProvider})
@@ -58,10 +56,10 @@ contract("ColdChainMonitor", accounts => {
 
             // shipping company withdraws its payment
             const beforeWithdraw = await token.balanceOf(serviceProvider)
-            assert(startCash.sub(stake).eq(beforeWithdraw))
+            assert.strictEqual(0, +beforeWithdraw)
             await monitor.withdraw({from: serviceProvider})
             const afterWithdraw = await token.balanceOf(serviceProvider)
-            assert(beforeWithdraw.add(payable).eq(afterWithdraw))
+            assert(payable.eq(afterWithdraw))
 
             // customer withdraws deductions
             const customerBalanceBefore = await token.balanceOf(customer)
