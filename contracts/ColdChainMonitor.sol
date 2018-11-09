@@ -22,7 +22,6 @@ contract ColdChainMonitor {
 
     ERC20 public token;
     address public canvas;
-    mapping (address => uint) credit;
 
     int tLimit;
     uint deadline;
@@ -76,17 +75,10 @@ contract ColdChainMonitor {
             deductions += (now - deadline) * timePenalty;
         }
         if (deductions > payment) {
-            credit[customer] += payment;
+            token.transfer(customer, payment);
         } else {
-            credit[customer] += deductions;
-            credit[serviceProvider] += payment - deductions;
+            token.transfer(customer, deductions);
+            token.transfer(serviceProvider, payment - deductions);
         }
-    }
-
-    function withdraw() public {
-        uint amount = credit[msg.sender];
-        require(amount > 0, "Nothing to withdraw");
-        credit[msg.sender] = 0;
-        require(token.transfer(msg.sender, amount), "Withdraw failed");
     }
 }

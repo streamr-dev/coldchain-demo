@@ -49,23 +49,19 @@ contract("ColdChainMonitor", accounts => {
             // customer receives
             await monitor.shipmentArrived({from: customer})
 
-            // canvas reports the overages
+            // canvas reports the overages...
             const deductions = overages.mul(temperaturePenaltyTokenWei)
             const payable = paymentTokenWei.sub(deductions)
-            await monitor.payout(overages, {from: canvas})
 
-            // shipping company withdraws its payment
-            const beforeWithdraw = await token.balanceOf(serviceProvider)
-            assert.strictEqual(0, +beforeWithdraw)
-            await monitor.withdraw({from: serviceProvider})
-            const afterWithdraw = await token.balanceOf(serviceProvider)
-            assert(payable.eq(afterWithdraw))
-
-            // customer withdraws deductions
+            // ...and does the payout
+            const beforePayout = await token.balanceOf(serviceProvider)
             const customerBalanceBefore = await token.balanceOf(customer)
+            assert.strictEqual(0, +beforePayout)
             assert.strictEqual(0, +customerBalanceBefore)
-            await monitor.withdraw({from: customer})
+            await monitor.payout(overages, {from: canvas})
+            const afterPayout = await token.balanceOf(serviceProvider)
             const customerBalanceAfter = await token.balanceOf(customer)
+            assert(payable.eq(afterPayout))
             assert(deductions.eq(customerBalanceAfter))
         })
     })
